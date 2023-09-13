@@ -1,0 +1,14 @@
+---
+Build Image:
+  image: debian:bookworm
+  parallel:
+    matrix:
+      - IMAGE: [rhel9]
+  before_script:
+    - apt update && apt install -qq curl qemu-system libguestfs-tools packer rsync -y
+  script:
+    - packer build "${IMAGE}.pkr.hcl"
+  cache:
+    key: packer-cache
+    paths:
+      - packer_cache/
