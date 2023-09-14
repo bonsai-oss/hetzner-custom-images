@@ -1,4 +1,4 @@
-source "qemu" "rhel-9" {
+source "qemu" "rhel9" {
   iso_url           = "https://s3.seq0.de:9000/manual-file-share/rhel-9.2-x86_64-dvd.iso"
   iso_checksum      = "md5:90cf58ff7a8f6ef8cb20b8ff091e84b7"
   headless          = var.headless
@@ -16,11 +16,7 @@ source "qemu" "rhel-9" {
   disk_interface    = "virtio"
   boot_wait         = "20s"
   boot_command      = ["<up><tab> inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/rhel9-ks.cfg<enter><wait>"]
-  qemuargs          = [
-                        ["-cpu", "host"],
-                        ["-smp", "6"],
-                        ["-m", "8192M"],
-                      ]
+  qemuargs          = [["-cpu", "host"], ["-smp", "6"], ["-m", "8192M"]]
 }
 
 variable "headless" {
@@ -34,7 +30,7 @@ variable "accelerator" {
 }
 
 build {
-  sources = ["source.qemu.rhel-9"]
+  sources = ["source.qemu.rhel9"]
 
   provisioner "shell" {
     script = "scripts/cleanup.sh"

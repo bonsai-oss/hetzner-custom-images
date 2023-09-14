@@ -4,11 +4,11 @@ Build Image:
   parallel:
     matrix:
       - IMAGE: [rhel9]
+  variables:
+    PACKER_LOG: '0'
   before_script:
-    - apt update && apt install -qq curl qemu-system libguestfs-tools packer rsync -y
+    - apt update && apt install -qq curl qemu-system linux-image-amd64 libguestfs-tools packer rsync -y --no-install-recommends --no-install-suggests > /dev/null
   script:
     - packer build "${IMAGE}.pkr.hcl"
-  cache:
-    key: packer-cache
-    paths:
-      - packer_cache/
+    - bash .gitlab/upload-packages.sh
+  interruptible: true
