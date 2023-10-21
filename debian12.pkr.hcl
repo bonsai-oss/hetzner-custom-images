@@ -1,6 +1,6 @@
-source "qemu" "rhel9" {
-  iso_url           = "https://s3.seq0.de:9000/manual-file-share/rhel-9.2-x86_64-dvd.iso"
-  iso_checksum      = "md5:90cf58ff7a8f6ef8cb20b8ff091e84b7"
+source "qemu" "debian12" {
+  iso_url           = "https://mirror.hetzner.com/bootimages/iso/debian-12.1.0-amd64-netinst.iso"
+  iso_checksum      = "md5:8d77d1b0bcfef29e4d56dc0fbe23de15"
   headless          = var.headless
   accelerator       = var.accelerator
   output_directory  = "output"
@@ -11,12 +11,20 @@ source "qemu" "rhel9" {
   ssh_username      = "root"
   ssh_password      = "packer"
   ssh_timeout       = "120m"
-  vm_name           = "rhel-9"
+  vm_name           = "debian-12"
   net_device        = "virtio-net"
   disk_interface    = "virtio"
-  boot_wait         = "20s"
+  boot_wait         = "5s"
   machine_type      = "q35"
-  boot_command      = ["<up><tab> inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/rhel9-ks.cfg<enter><wait>"]
+  boot_command      = [
+    "<down><tab>",
+    "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/debian12-preseed.cfg ",
+    "auto=true ",
+    "priority=critical ",
+    "passwd/root-password=packer ",
+    "passwd/root-password-again=packer ",
+    "<enter><wait>",
+  ]
   qemuargs          = [["-cpu", "host"], ["-smp", "6"], ["-m", "8192M"]]
 }
 
@@ -31,7 +39,7 @@ variable "accelerator" {
 }
 
 build {
-  sources = ["source.qemu.rhel9"]
+  sources = ["source.qemu.debian12"]
 
   provisioner "shell" {
     scripts = [
@@ -42,7 +50,7 @@ build {
 
   post-processor "shell-local" {
     name   = "tarball"
-    inline = ["/usr/bin/guestfish -a output/rhel-9 --ro -i tar-out / output/rhel-9-amd64-server.tar.gz compress:gzip numericowner:true xattrs:true selinux:true acls:true"]
+    inline = ["/usr/bin/guestfish -a output/debian-12 --ro -i tar-out / output/debian-12-amd64-base.tar.gz compress:gzip numericowner:true xattrs:true selinux:true acls:true"]
   }
 
 }

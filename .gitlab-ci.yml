@@ -3,12 +3,37 @@ Build Image:
   image: debian:bookworm
   parallel:
     matrix:
-      - IMAGE: [rhel9]
+      - IMAGE: [rhel9, debian12]
   variables:
     PACKER_LOG: '0'
   before_script:
-    - apt update && apt install -qq curl qemu-system linux-image-amd64 libguestfs-tools packer rsync -y --no-install-recommends --no-install-suggests > /dev/null
+    - apt update && apt install -qq curl qemu-system linux-image-amd64 libguestfs-tools packer rsync rclone -y --no-install-recommends --no-install-suggests > /dev/null
+    - >
+      rclone config create remote s3 \
+      provider Minio \
+      env_auth false \
+      access_key_id $MINIO_ACCESS_KEY \
+      secret_access_key $MINIO_SECRET_KEY \
+      endpoint 'https://s3.seq0.de:9000'
   script:
-    - packer build "${IMAGE}.pkr.hcl"
+    - packer build -var "headless=true" "${IMAGE}.pkr.hcl"
     - bash .gitlab/upload-packages.sh
   interruptible: true
+
+Create Index:
+  image: node:21
+  needs:
+    - Build Image
+  before_script:
+    - apt update && apt install rclone -y --no-install-recommends --no-install-suggests > /dev/null
+    - >
+      rclone config create remote s3 \
+      provider Minio \
+      env_auth false \
+      access_key_id $MINIO_ACCESS_KEY \
+      secret_access_key $MINIO_SECRET_KEY \
+      endpoint 'https://s3.seq0.de:9000'
+  script:
+    - rclone lsjson remote:hetzner-images/ -R --files-only > files.json
+    - node .gitlab/convert-file-index.js files.json
+    - rclone copy index.html remote:hetzner-images/

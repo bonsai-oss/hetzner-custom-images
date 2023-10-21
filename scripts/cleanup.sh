@@ -22,7 +22,16 @@ find /var/log -type f \( -regex '.*\.[0-9]+$' -or -regex '.*\.gz$' -or -regex '.
 find /var/log -type d -empty -not -name journal -not -name private -not -name chrony -delete
 find /var/log -type f -not -empty -exec truncate -s0 {} \;
 
+# create dummy host keys
+ssh-keygen -A
+find /etc/ssh -type f -name '**host**' -exec truncate -s0 {} \;
+
 truncate -s0 /etc/machine-id
-truncate -s0 /var/lib/NetworkManager/secret_key
+truncate -s0 /var/lib/NetworkManager/secret_key || true
 
 rm -f /var/lib/systemd/random-seed
+
+if command -v debconf-communicate &> /dev/null; then
+  echo 'RESET passwd/username' | debconf-communicate
+fi
+
