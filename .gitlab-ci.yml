@@ -21,7 +21,7 @@ Build Image:
   interruptible: true
 
 Create Index:
-  image: node:21
+  image: node:21.3.0
   needs:
     - Build Image
   before_script:
