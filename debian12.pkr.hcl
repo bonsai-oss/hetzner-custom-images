@@ -1,6 +1,6 @@
 source "qemu" "debian12" {
-  iso_url           = "https://mirror.hetzner.com/bootimages/iso/debian-12.1.0-amd64-netinst.iso"
-  iso_checksum      = "md5:8d77d1b0bcfef29e4d56dc0fbe23de15"
+  iso_url           = "https://mirror.hetzner.com/bootimages/iso/debian-12.4.0-amd64-netinst.iso"
+  iso_checksum      = "md5:a03cf771ba9513d908093101a094ac88"
   headless          = var.headless
   accelerator       = var.accelerator
   output_directory  = "output"
