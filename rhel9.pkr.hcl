@@ -1,5 +1,5 @@
 source "qemu" "rhel9" {
-  iso_url           = "https://s3.seq0.de:9000/manual-file-share/rhel-9.2-x86_64-dvd.iso"
+  iso_url           = "https://s3.fsrv.services/manual-file-share/rhel-9.2-x86_64-dvd.iso"
   iso_checksum      = "md5:90cf58ff7a8f6ef8cb20b8ff091e84b7"
   headless          = var.headless
   accelerator       = var.accelerator
